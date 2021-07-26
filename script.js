@@ -6,6 +6,22 @@ const userPassword = form.querySelector('#password');
 const userPassConfirm = form.querySelector('#password2');
 
 // Functions
+// Check Input
+const checkInput = (inputArr) => {
+  for (const input of inputArr) {
+    if (!input.inputEl.value.trim()) {
+      showError(input.inputEl, input.message);
+    } else if (
+      input.checkEmail === true &&
+      !validateEmail(input.inputEl.value.trim())
+    ) {
+      showError(input.inputEl, 'Invalid Email');
+    } else {
+      showSuccess(input.inputEl);
+    }
+  }
+};
+
 // Input - Error
 const showError = (inputEl, message) => {
   inputEl.nextElementSibling.textContent = message;
@@ -30,29 +46,10 @@ const validateEmail = (email) => {
 form.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  if (!userName.value) {
-    showError(userName, 'Username Required');
-  } else {
-    showSuccess(userName);
-  }
-
-  if (!userEmail.value) {
-    showError(userEmail, 'User Email Required');
-  } else if (!validateEmail(userEmail.value)) {
-    showError(userEmail, 'Invalid Email');
-  } else {
-    showSuccess(userEmail);
-  }
-
-  if (!userPassword.value) {
-    showError(userPassword, 'Password Required');
-  } else {
-    showSuccess(userPassword);
-  }
-
-  if (!userPassConfirm.value) {
-    showError(userPassConfirm, 'Password Confirmation Required');
-  } else {
-    showSuccess(userPassConfirm);
-  }
+  checkInput([
+    { inputEl: userName, message: 'Username Required' },
+    { inputEl: userEmail, message: 'User Email Required', checkEmail: true },
+    { inputEl: userPassword, message: 'Password Required' },
+    { inputEl: userPassConfirm, message: 'Password Confirmation Required' },
+  ]);
 });
