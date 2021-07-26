@@ -6,22 +6,6 @@ const userPassword = form.querySelector('#password');
 const userPassConfirm = form.querySelector('#password2');
 
 // Functions
-// Check Input
-const checkInput = (inputArr) => {
-  for (const input of inputArr) {
-    if (!input.inputEl.value.trim()) {
-      showError(input.inputEl, input.message);
-    } else if (
-      input.checkEmail === true &&
-      !validateEmail(input.inputEl.value.trim())
-    ) {
-      showError(input.inputEl, 'Invalid Email');
-    } else {
-      showSuccess(input.inputEl);
-    }
-  }
-};
-
 // Input - Error
 const showError = (inputEl, message) => {
   inputEl.nextElementSibling.textContent = message;
@@ -35,6 +19,22 @@ const showSuccess = (inputEl) => {
   inputEl.parentElement.classList.add('success');
 };
 
+// Input - Check Required
+const checkRequired = (inputArr) => {
+  for (const input of inputArr) {
+    if (!input.inputEl.value.trim()) {
+      showError(input.inputEl, input.errMessage);
+    } else if (
+      input.checkEmail === true &&
+      !validateEmail(input.inputEl.value.trim())
+    ) {
+      showError(input.inputEl, 'Invalid Email');
+    } else {
+      showSuccess(input.inputEl);
+    }
+  }
+};
+
 // Email Validation
 const validateEmail = (email) => {
   const re =
@@ -42,14 +42,47 @@ const validateEmail = (email) => {
   return re.test(String(email).toLowerCase());
 };
 
+// Length Validation
+const validateLength = (inputArr) => {
+  for (const input of inputArr) {
+    if (input.inputEl.value && input.inputEl.value.length < input.minLength) {
+      showError(
+        input.inputEl,
+        `${input.inputEl.previousElementSibling.textContent} should be at least ${input.minLength} characters`
+      );
+    } else if (input.inputEl.value.length > input.maxLength) {
+      showError(
+        input.inputEl,
+        `${input.inputEl.previousElementSibling.textContent} should be less then ${input.maxLength} characters`
+      );
+    }
+  }
+};
+
+// Password Match Validation
+const passwordsMatch = (passwd, passwdConfirm) => {
+  if (passwd.value !== passwdConfirm.value && passwdConfirm.value) {
+    showError(passwdConfirm, "Password doesn't match");
+  } else {
+    validateLength([{ inputEl: passwdConfirm, minLength: 6, maxLength: 25 }]);
+  }
+};
+
 // Event listeners
 form.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  checkInput([
-    { inputEl: userName, message: 'Username Required' },
-    { inputEl: userEmail, message: 'User Email Required', checkEmail: true },
-    { inputEl: userPassword, message: 'Password Required' },
-    { inputEl: userPassConfirm, message: 'Password Confirmation Required' },
+  checkRequired([
+    { inputEl: userName, errMessage: 'Username Required' },
+    { inputEl: userEmail, errMessage: 'User Email Required', checkEmail: true },
+    { inputEl: userPassword, errMessage: 'Password Required' },
+    { inputEl: userPassConfirm, errMessage: 'Password Confirmation Required' },
   ]);
+
+  validateLength([
+    { inputEl: userName, minLength: 3, maxLength: 4 },
+    { inputEl: userPassword, minLength: 6, maxLength: 25 },
+  ]);
+
+  passwordsMatch(userPassword, userPassConfirm);
 });
