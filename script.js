@@ -24,11 +24,6 @@ const checkRequired = (inputArr) => {
   for (const input of inputArr) {
     if (!input.inputEl.value.trim()) {
       showError(input.inputEl, input.errMessage);
-    } else if (
-      input.checkEmail === true &&
-      !validateEmail(input.inputEl.value.trim())
-    ) {
-      showError(input.inputEl, 'Invalid Email');
     } else {
       showSuccess(input.inputEl);
     }
@@ -36,10 +31,15 @@ const checkRequired = (inputArr) => {
 };
 
 // Email Validation
-const validateEmail = (email) => {
+const validateEmail = (emailInputEl) => {
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
+  if (
+    emailInputEl.value &&
+    !re.test(String(emailInputEl.value).toLowerCase())
+  ) {
+    showError(emailInputEl, 'Invalid Email');
+  }
 };
 
 // Length Validation
@@ -74,10 +74,12 @@ form.addEventListener('submit', (event) => {
 
   checkRequired([
     { inputEl: userName, errMessage: 'Username Required' },
-    { inputEl: userEmail, errMessage: 'User Email Required', checkEmail: true },
+    { inputEl: userEmail, errMessage: 'User Email Required' },
     { inputEl: userPassword, errMessage: 'Password Required' },
     { inputEl: userPassConfirm, errMessage: 'Password Confirmation Required' },
   ]);
+
+  validateEmail(userEmail);
 
   validateLength([
     { inputEl: userName, minLength: 3, maxLength: 4 },
